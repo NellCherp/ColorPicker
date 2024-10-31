@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "267296217437",
+    "project_id": "colortest-c4770",
+    "storage_bucket": "colortest-c4770.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:267296217437:android:6ff90390240b913bb330b4",
+        "android_client_info": {
+          "package_name": "com.nellecodes.colorpicker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1jxNoqiqj4rnIdCrg0yvrLmGfQWzExC8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

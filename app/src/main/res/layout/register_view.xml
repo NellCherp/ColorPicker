@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="30sp"
+        android:layout_above="@+id/participant_id"
+        android:orientation="vertical" >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Welcome"
+            android:textSize="30sp"
+            android:textAlignment="center"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Please enter unique participant id"
+            android:textSize="18sp"
+            android:textAlignment="center"
+            android:textColor="@color/gray"
+            android:textStyle="italic"
+            android:layout_margin="10dp"
+            />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/participant_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/startBtn"
+        android:layout_margin="10dp"
+        android:layout_marginBottom="40dp"
+        android:hint="Participant ID"
+        />
+    <Button
+        android:id="@+id/startBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="Start Trial"/>
+
+</RelativeLayout>
