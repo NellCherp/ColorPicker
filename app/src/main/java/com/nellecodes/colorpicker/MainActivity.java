@@ -2,6 +2,7 @@ package com.nellecodes.colorpicker;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,9 +34,12 @@ public class MainActivity extends AppCompatActivity {
     String userid;
     Integer count = 0;
     Integer nrPicks = 5;
-    long startTime, endTime;
+    long startTime, endTime, sesTime;
+    long sessionLength = 60000;
 
     private DatabaseReference mDatabase;
+    private Handler sessionHandler;
+    private Runnable sessionRunnable;
     Button button;
 
     @Override
@@ -50,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        sessionHandler = new Handler();
+
         red_layout = findViewById(R.id.red_choise);
         yellow_layout = findViewById(R.id.yellow_choise);
         blue_layout = findViewById(R.id.blue_choise);
@@ -62,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
         startBtn = findViewById(R.id.startBtn);
         participantIdTxt = findViewById(R.id.participant_id);
         register = findViewById(R.id.register_layout);
+        sesTime = 0;
 
         red_layout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,9 +117,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        resetSession();
+
         mDatabase.child("current").child("text").setValue("NONE");
         mDatabase.child("current").child("color").setValue("NONE");
-        grid.setClickable(false);
+        disableGrid();
     }
 
     private void startClicked() {
@@ -120,13 +129,22 @@ public class MainActivity extends AppCompatActivity {
        if (!id.isEmpty()) {
            participantIdTxt.setText("");
            register.setVisibility(View.GONE);
-           grid.setClickable(true);
+           enableGrid();
            user = new Participant(id);
            userid = id;
            colorManager.setRandomColor();
            mDatabase.child("current").child("color").setValue(colorManager.getColor().toString());
            mDatabase.child("current").child("text").setValue(colorManager.getColorTxt().toString());
            startTime = System.currentTimeMillis();
+
+           sessionHandler.removeCallbacks(sessionRunnable); // Ensure no previous timer is running
+           sessionRunnable = new Runnable() {
+               @Override
+               public void run() {
+                   endSession();
+               }
+           };
+           sessionHandler.postDelayed(sessionRunnable, sessionLength);
        }
     }
     private void colorChosen(Color color) {
@@ -151,14 +169,21 @@ public class MainActivity extends AppCompatActivity {
                         System.out.println("Data write failed: " + task.getException());
                     }
                 });
+    }
 
-        if (count >= nrPicks) {
-            grid.setClickable(false);
-            count = 0;
-            mDatabase.child("current").child("text").setValue("NONE");
-            mDatabase.child("current").child("color").setValue("NONE");
-            register.setVisibility(View.VISIBLE);
-        }
+    private void endSession() {
+        disableGrid();
+        mDatabase.child("current").child("text").setValue("NONE");
+        mDatabase.child("current").child("color").setValue("NONE");
+        register.setVisibility(View.VISIBLE);
+    }
+
+    private void resetSession() {
+        disableGrid();
+        mDatabase.child("current").child("text").setValue("NONE");
+        mDatabase.child("current").child("color").setValue("NONE");
+        register.setVisibility(View.VISIBLE);
+        sessionHandler.removeCallbacks(sessionRunnable); // Stop any ongoing session timer
     }
 
 private String getTime() {
@@ -170,11 +195,25 @@ private String getTime() {
 
     @Override
     protected void onDestroy() {
-        grid.setClickable(false);
-        count = 0;
-        mDatabase.child("current").child("text").setValue("NONE");
-        mDatabase.child("current").child("color").setValue("NONE");
+        resetSession();
         register.setVisibility(View.VISIBLE);
         super.onDestroy();
+    }
+
+    private void disableGrid() {
+        red_layout.setClickable(false);
+        blue_layout.setClickable(false);
+        yellow_layout.setClickable(false);
+        purple_layout.setClickable(false);
+        green_layout.setClickable(false);
+        orange_layout.setClickable(false);
+    }
+    private void enableGrid() {
+        red_layout.setClickable(true);
+        blue_layout.setClickable(true);
+        yellow_layout.setClickable(true);
+        purple_layout.setClickable(true);
+        green_layout.setClickable(true);
+        orange_layout.setClickable(true);
     }
 }
