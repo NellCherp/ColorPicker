@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     Participant user;
     String userid;
     Integer count = 0;
-    Integer nrPicks = 5;
+    Integer correctCnt = 0;
     long startTime, endTime, sesTime;
     long sessionLength = 60000;
 
@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
         sessionHandler = new Handler();
 
+        //Find layout from activity_main.xml
         red_layout = findViewById(R.id.red_choise);
         yellow_layout = findViewById(R.id.yellow_choise);
         blue_layout = findViewById(R.id.blue_choise);
@@ -70,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
         register = findViewById(R.id.register_layout);
         sesTime = 0;
 
+        //For each color square, call colorChose with the color enum as a parameter
         red_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -110,6 +112,8 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        //Call startClicked when the start button is clicked
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -117,17 +121,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Initiate the study by calling restartSession() and
         resetSession();
-
-        mDatabase.child("current").child("text").setValue("NONE");
-        mDatabase.child("current").child("color").setValue("NONE");
-        disableGrid();
     }
 
     private void startClicked() {
        String id = participantIdTxt.getText().toString();
-       if (!id.isEmpty()) {
-           participantIdTxt.setText("");
+       if (!id.isEmpty()) { //Make sure that an ide is provided
            register.setVisibility(View.GONE);
            enableGrid();
            user = new Participant(id);
@@ -145,6 +145,9 @@ public class MainActivity extends AppCompatActivity {
                }
            };
            sessionHandler.postDelayed(sessionRunnable, sessionLength);
+       } else {
+           participantIdTxt.setError("Please provide a unique id");
+           participantIdTxt.requestFocus();
        }
     }
     private void colorChosen(Color color) {
@@ -152,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
         boolean correct;
         if (color == colorManager.color) {
             correct = true;
+            correctCnt += 1;
         } else {
             correct = false;
         }
@@ -176,6 +180,14 @@ public class MainActivity extends AppCompatActivity {
         mDatabase.child("current").child("text").setValue("NONE");
         mDatabase.child("current").child("color").setValue("NONE");
         register.setVisibility(View.VISIBLE);
+        writeStats(count,userid,correctCnt);
+        count = 0;
+        correctCnt = 0;
+    }
+
+    private void writeStats(int count, String userid, int correct) {
+        mDatabase.child("tests").child(userid).push().setValue(count);
+        mDatabase.child("tests").child(userid).push().setValue((correct / count) * 100);
     }
 
     private void resetSession() {
@@ -183,6 +195,9 @@ public class MainActivity extends AppCompatActivity {
         mDatabase.child("current").child("text").setValue("NONE");
         mDatabase.child("current").child("color").setValue("NONE");
         register.setVisibility(View.VISIBLE);
+        participantIdTxt.setText("");
+        count = 0;
+        correctCnt = 0;
         sessionHandler.removeCallbacks(sessionRunnable); // Stop any ongoing session timer
     }
 
